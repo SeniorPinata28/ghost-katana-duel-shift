@@ -1,0 +1,14 @@
+; Engine configuration file.
+; Minimal Godot/Xogot prototype project for Ghost Katana: Duel Shift.
+
+config_version=5
+
+[application]
+
+config/name="Ghost Katana: Duel Shift"
+run/main_scene="res://scenes/Level2D.tscn"
+config/features=PackedStringArray("4.2")
+
+[autoload]
+
+GameManager="*res://scripts/GameManager.gd"

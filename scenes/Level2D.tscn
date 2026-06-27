@@ -1,0 +1,79 @@
+[gd_scene load_steps=8 format=3 uid="uid://level2dprototype"]
+
+[ext_resource type="Script" path="res://scripts/Level2D.gd" id="1_level"]
+[ext_resource type="Script" path="res://scripts/Player2D.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/Enemy2D.gd" id="3_enemy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(32, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(900, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_crate"]
+size = Vector2(56, 56)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy"]
+size = Vector2(48, 64)
+
+[node name="Level2D" type="Node2D"]
+script = ExtResource("1_level")
+
+[node name="Player2D" type="CharacterBody2D" parent="."]
+position = Vector2(120, 360)
+script = ExtResource("2_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player2D"]
+shape = SubResource("RectangleShape2D_player")
+
+[node name="PlayerVisual" type="Polygon2D" parent="Player2D"]
+color = Color(0.2, 0.55, 1, 1)
+polygon = PackedVector2Array(-16, -32, 16, -32, 16, 32, -16, 32)
+
+[node name="Ground" type="StaticBody2D" parent="."]
+position = Vector2(450, 440)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+shape = SubResource("RectangleShape2D_ground")
+
+[node name="GroundVisual" type="Polygon2D" parent="Ground"]
+color = Color(0.25, 0.7, 0.25, 1)
+polygon = PackedVector2Array(-450, -24, 450, -24, 450, 24, -450, 24)
+
+[node name="Crate" type="StaticBody2D" parent="."]
+position = Vector2(330, 384)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Crate"]
+shape = SubResource("RectangleShape2D_crate")
+
+[node name="CrateVisual" type="Polygon2D" parent="Crate"]
+color = Color(0.65, 0.38, 0.18, 1)
+polygon = PackedVector2Array(-28, -28, 28, -28, 28, 28, -28, 28)
+
+[node name="Enemy2D" type="Area2D" parent="."]
+position = Vector2(560, 376)
+script = ExtResource("3_enemy")
+enemy_id = "enemy_01"
+enemy_level = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy2D"]
+shape = SubResource("RectangleShape2D_enemy")
+
+[node name="EnemyVisual" type="Polygon2D" parent="Enemy2D"]
+color = Color(0.95, 0.2, 0.2, 1)
+polygon = PackedVector2Array(-24, -32, 24, -32, 24, 32, -24, 32)
+
+[node name="Exit" type="Area2D" parent="."]
+position = Vector2(790, 392)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Exit"]
+shape = SubResource("RectangleShape2D_enemy")
+
+[node name="ExitVisual" type="Polygon2D" parent="Exit"]
+color = Color(1, 0.85, 0.2, 1)
+polygon = PackedVector2Array(-24, -32, 24, -32, 24, 32, -24, 32)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(450, 260)
+enabled = true
+zoom = Vector2(1.15, 1.15)

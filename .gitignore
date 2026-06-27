@@ -1,0 +1,22 @@
+# Godot/Xogot generated files
+.godot/
+.import/
+
+# Imported asset metadata
+*.import
+
+# Export output
+export/
+build/
+*.pck
+*.zip
+*.dmg
+*.exe
+*.apk
+*.ipa
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
