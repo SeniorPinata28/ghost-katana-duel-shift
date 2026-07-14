@@ -77,3 +77,40 @@ polygon = PackedVector2Array(-24, -32, 24, -32, 24, 32, -24, 32)
 position = Vector2(450, 260)
 enabled = true
 zoom = Vector2(1.15, 1.15)
+
+[node name="MobileUI" type="CanvasLayer" parent="."]
+
+[node name="Hint" type="Label" parent="MobileUI"]
+offset_left = 20.0
+offset_top = 18.0
+offset_right = 600.0
+offset_bottom = 48.0
+text = "Reach the red enemy. Win the 3D duel, then go to the yellow exit."
+
+[node name="LeftButton" type="Button" parent="MobileUI"]
+offset_left = 28.0
+offset_top = 400.0
+offset_right = 118.0
+offset_bottom = 478.0
+text = "LEFT"
+
+[node name="RightButton" type="Button" parent="MobileUI"]
+offset_left = 132.0
+offset_top = 400.0
+offset_right = 222.0
+offset_bottom = 478.0
+text = "RIGHT"
+
+[node name="JumpButton" type="Button" parent="MobileUI"]
+offset_left = 754.0
+offset_top = 400.0
+offset_right = 872.0
+offset_bottom = 478.0
+text = "JUMP"
+
+[node name="RestartButton" type="Button" parent="MobileUI"]
+offset_left = 760.0
+offset_top = 18.0
+offset_right = 872.0
+offset_bottom = 58.0
+text = "RESTART"
