@@ -17,7 +17,7 @@ func _ready():
 	left_button.button_up.connect(func(): Input.action_release("ui_left"))
 	right_button.button_down.connect(func(): Input.action_press("ui_right"))
 	right_button.button_up.connect(func(): Input.action_release("ui_right"))
-	jump_button.pressed.connect(func(): Input.action_press("ui_accept"))
+	jump_button.button_down.connect(func(): Input.action_press("ui_accept"))
 	jump_button.button_up.connect(func(): Input.action_release("ui_accept"))
 	restart_button.pressed.connect(GameManager.reset_run)
 
