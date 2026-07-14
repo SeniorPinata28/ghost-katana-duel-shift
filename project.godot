@@ -1,0 +1,27 @@
+; Engine configuration file.
+; Minimal runnable baseline for Ghost Katana: Duel Shift.
+
+config_version=5
+
+[application]
+
+config/name="Ghost Katana: Duel Shift"
+run/main_scene="res://scenes/levels/Level2D.tscn"
+
+[autoload]
+
+GameManager="*res://scripts/GameManager.gd"
+
+[display]
+
+window/size/viewport_width=900
+window/size/viewport_height=500
+window/size/window_width_override=900
+window/size/window_height_override=500
+window/stretch/mode="canvas_items"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.055, 0.065, 0.09, 1)
