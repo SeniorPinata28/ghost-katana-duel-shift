@@ -1,12 +1,45 @@
 # Ghost Katana: Duel Shift
 
-Godot/Xogot prototype.
+Minimal runnable Godot/Xogot prototype for the first gameplay loop.
 
-## Current repository state
+## Launch
 
-The `development` branch contains the currently provided project files:
+Open the repository folder in Godot/Xogot and run the project.
 
+Main scene:
+
+`res://scenes/levels/Level2D.tscn`
+
+Autoload:
+
+`GameManager → res://scripts/GameManager.gd`
+
+## Implemented prototype cycle
+
+`Level2D → Enemy2D → DuelArena3D → Win/Lose → Level2D`
+
+On victory, the defeated enemy disappears. On defeat, the player returns to the saved 2D position. The restart button clears the current run.
+
+## Controls
+
+Desktop:
+
+- Left / Right arrows — movement
+- Space / Enter — jump
+
+Mobile/Xogot:
+
+- LEFT / RIGHT — movement
+- JUMP — jump
+- RESTART — reset the run
+- ATTACK / GUARD — duel actions
+
+## Current files
+
+- `project.godot`
 - `scenes/levels/Level2D.tscn`
+- `scenes/duel/DuelArena3D.tscn`
+- `scripts/GameManager.gd`
 - `scripts/Level2D.gd`
 - `scripts/Player2D.gd`
 - `scripts/Enemy2D.gd`
@@ -14,18 +47,6 @@ The `development` branch contains the currently provided project files:
 - `scripts/player_3d_marker.gd`
 - `docs/level_1_plan.md`
 
-## Important missing files
+## Prototype status
 
-The repository is not yet a complete runnable Godot project. The following required files were not provided and are not present:
-
-- `project.godot`
-- `scripts/GameManager.gd`
-- `scenes/duel/DuelArena3D.tscn`
-
-Because these files are missing, the project cannot yet be verified by launching it from GitHub.
-
-## Intended prototype cycle
-
-`Level2D → Enemy2D → DuelArena3D → Win → Level2D → defeated enemy disappears`
-
-See `docs/level_1_plan.md` for the current level plan.
+This is a functional baseline made from temporary geometric visuals. It is intended for verifying the scene transition, movement, jump, duel loop, victory, defeat, enemy removal and mobile input before adding final art or expanding gameplay.
