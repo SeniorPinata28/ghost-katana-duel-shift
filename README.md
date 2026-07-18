@@ -34,6 +34,23 @@ Mobile/Xogot:
 - RESTART — reset the run
 - ATTACK / GUARD — duel actions
 
+## 3D duel rules
+
+The player and enemy now use the same combat parameters:
+
+- HP: 3
+- DEF: 3
+- Damage: 1
+- Identical capsule size and attack-lunge distance
+
+Enemy phases:
+
+- preparing attack — guard before the timer expires;
+- guarding — attacks remove enemy DEF first;
+- open — attacks damage enemy HP.
+
+A successful player guard consumes one DEF point instead of HP. When DEF reaches zero, later enemy attacks damage HP. Attacking while the enemy prepares an attack triggers a counterattack.
+
 ## Current files
 
 - `project.godot`
@@ -49,4 +66,4 @@ Mobile/Xogot:
 
 ## Prototype status
 
-This is a functional baseline made from temporary geometric visuals. It is intended for verifying the scene transition, movement, jump, duel loop, victory, defeat, enemy removal and mobile input before adding final art or expanding gameplay.
+This is a functional baseline made from temporary geometric visuals. It is intended for verifying the scene transition, movement, jump, duel loop, symmetric player/enemy stats, defense, victory, defeat, enemy removal and mobile input before adding final art or expanding gameplay.
