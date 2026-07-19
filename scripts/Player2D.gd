@@ -32,11 +32,63 @@ var coyote_time := 0.0
 var jump_buffer_time := 0.0
 var focus_requested := false
 
-@onready var player_visual: Node2D = $PlayerVisual
+var player_visual: Node2D
 
 func _ready() -> void:
 	add_to_group("player_2d")
+	_setup_player_visual()
 	_play_visual(&"idle")
+
+func _setup_player_visual() -> void:
+	var placeholder := get_node_or_null("PlayerVisual") as Node2D
+	var animated := AnimatedSprite2D.new()
+	animated.name = "PlayerVisualAnimated"
+	animated.centered = true
+	animated.position = Vector2(0.0, -8.0)
+	animated.scale = Vector2(0.20, 0.20)
+	animated.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	animated.sprite_frames = _build_player_frames()
+	add_child(animated)
+	player_visual = animated
+	if placeholder != null:
+		placeholder.visible = false
+
+func _build_player_frames() -> SpriteFrames:
+	var frames := SpriteFrames.new()
+	frames.clear_all()
+	_add_sheet_animation(frames, &"idle", "res://assets/hero/source_sheets/hero_ready.png", 6, 6.0, true)
+	_add_run_animation(frames)
+	_add_sheet_animation(frames, &"jump", "res://assets/hero/source_sheets/hero_jump.png", 6, 10.0, false)
+	_add_sheet_animation(frames, &"attack", "res://assets/hero/source_sheets/hero_attack.png", 6, 18.0, false)
+	_add_sheet_animation(frames, &"heavy", "res://assets/hero/source_sheets/hero_heavy.png", 6, 14.0, false)
+	_add_sheet_animation(frames, &"dash", "res://assets/hero/source_sheets/hero_dash.png", 6, 20.0, false)
+	_add_sheet_animation(frames, &"death", "res://assets/hero/source_sheets/hero_death.png", 6, 10.0, false)
+	return frames
+
+func _add_run_animation(frames: SpriteFrames) -> void:
+	frames.add_animation(&"run")
+	frames.set_animation_speed(&"run", 11.0)
+	frames.set_animation_loop(&"run", true)
+	for index in range(1, 7):
+		var path := "res://assets/hero/run_%02d.webp" % index
+		var texture := load(path) as Texture2D
+		if texture != null:
+			frames.add_frame(&"run", texture)
+
+func _add_sheet_animation(frames: SpriteFrames, animation_name: StringName, path: String, frame_count: int, fps: float, looped: bool) -> void:
+	frames.add_animation(animation_name)
+	frames.set_animation_speed(animation_name, fps)
+	frames.set_animation_loop(animation_name, looped)
+	var texture := load(path) as Texture2D
+	if texture == null:
+		return
+	var frame_width := texture.get_width() / frame_count
+	var frame_height := texture.get_height()
+	for index in range(frame_count):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = texture
+		atlas.region = Rect2(index * frame_width, 0, frame_width, frame_height)
+		frames.add_frame(animation_name, atlas)
 
 func _physics_process(delta: float) -> void:
 	_update_timers(delta)
