@@ -1,8 +1,14 @@
-[gd_scene format=3 uid="uid://bir80iut7aoba"]
+[gd_scene load_steps=15 format=3 uid="uid://bir80iut7aoba"]
 
 [ext_resource type="Script" path="res://scripts/Level2D.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/Player2D.gd" id="2_player"]
 [ext_resource type="Script" path="res://scripts/Enemy2D.gd" id="3_enemy"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_01.webp" id="4_run1"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_02.webp" id="5_run2"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_03.webp" id="6_run3"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_04.webp" id="7_run4"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_05.webp" id="8_run5"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_06.webp" id="9_run6"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(32, 64)
@@ -16,6 +22,32 @@ size = Vector2(56, 56)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy"]
 size = Vector2(48, 64)
 
+[sub_resource type="SpriteFrames" id="SpriteFrames_player"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_run1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_run2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_run3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_run4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_run5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_run6")
+}],
+"loop": true,
+"name": &"run",
+"speed": 10.0
+}]
+
 [node name="Level2D" type="Node2D"]
 script = ExtResource("1_level")
 
@@ -26,9 +58,12 @@ script = ExtResource("2_player")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player2D"]
 shape = SubResource("RectangleShape2D_player")
 
-[node name="PlayerVisual" type="Polygon2D" parent="Player2D"]
-color = Color(0.2, 0.55, 1, 1)
-polygon = PackedVector2Array(-16, -32, 16, -32, 16, 32, -16, 32)
+[node name="PlayerVisual" type="AnimatedSprite2D" parent="Player2D"]
+texture_filter = 2
+position = Vector2(0, -22)
+scale = Vector2(0.32, 0.32)
+sprite_frames = SubResource("SpriteFrames_player")
+animation = &"run"
 
 [node name="Ground" type="StaticBody2D" parent="."]
 position = Vector2(450, 440)
@@ -83,34 +118,34 @@ zoom = Vector2(1.15, 1.15)
 [node name="Hint" type="Label" parent="MobileUI"]
 offset_left = 20.0
 offset_top = 18.0
-offset_right = 600.0
+offset_right = 680.0
 offset_bottom = 48.0
-text = "Reach the red enemy. Win the 3D duel, then go to the yellow exit."
+text = "Дойдите до элитного врага. Победите в 3D-дуэли и откройте выход."
 
 [node name="LeftButton" type="Button" parent="MobileUI"]
 offset_left = 28.0
 offset_top = 400.0
 offset_right = 118.0
 offset_bottom = 478.0
-text = "LEFT"
+text = "ВЛЕВО"
 
 [node name="RightButton" type="Button" parent="MobileUI"]
 offset_left = 132.0
 offset_top = 400.0
 offset_right = 222.0
 offset_bottom = 478.0
-text = "RIGHT"
+text = "ВПРАВО"
 
 [node name="JumpButton" type="Button" parent="MobileUI"]
 offset_left = 754.0
 offset_top = 400.0
 offset_right = 872.0
 offset_bottom = 478.0
-text = "JUMP"
+text = "ПРЫЖОК"
 
 [node name="RestartButton" type="Button" parent="MobileUI"]
 offset_left = 760.0
 offset_top = 18.0
 offset_right = 872.0
 offset_bottom = 58.0
-text = "RESTART"
+text = "ЗАНОВО"
