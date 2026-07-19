@@ -1,17 +1,265 @@
 extends CharacterBody2D
 
-const SPEED = 220.0
-const JUMP_VELOCITY = -420.0
-const GRAVITY = 980.0
+signal status_changed(message: String)
+signal player_died
 
-func _physics_process(delta):
-	if not is_on_floor():
+const PROJECTILE_SCRIPT := preload("res://scripts/PlayerProjectile2D.gd")
+
+const SPEED := 225.0
+const JUMP_VELOCITY := -430.0
+const GRAVITY := 980.0
+const COYOTE_TIME := 0.12
+const JUMP_BUFFER_TIME := 0.12
+const DASH_SPEED := 610.0
+const DASH_DURATION := 0.17
+const DASH_COOLDOWN := 0.90
+const QUICK_ATTACK_COOLDOWN := 0.24
+const STRONG_ATTACK_COOLDOWN := 0.62
+const TECHNIQUE_COOLDOWN := 0.32
+const FOCUS_DRAIN_PER_SECOND := 24.0
+
+var facing := 1.0
+var controls_locked := false
+var dead := false
+var dash_time := 0.0
+var dash_cooldown := 0.0
+var quick_cooldown := 0.0
+var strong_cooldown := 0.0
+var technique_cooldown := 0.0
+var invulnerability_time := 0.0
+var attack_lock_time := 0.0
+var coyote_time := 0.0
+var jump_buffer_time := 0.0
+var focus_requested := false
+
+@onready var player_visual: Node2D = $PlayerVisual
+
+func _ready() -> void:
+	add_to_group("player_2d")
+	_play_visual(&"idle")
+
+func _physics_process(delta: float) -> void:
+	_update_timers(delta)
+	_update_focus(delta)
+	if dead:
+		velocity = Vector2.ZERO
+		return
+	if controls_locked:
+		velocity.x = move_toward(velocity.x, 0.0, 1200.0 * delta)
+		if not is_on_floor():
+			velocity.y += GRAVITY * delta
+		move_and_slide()
+		_update_animation(0.0)
+		return
+	if dash_time > 0.0:
+		velocity = Vector2(facing * DASH_SPEED, 0.0)
+		move_and_slide()
+		_update_animation(facing)
+		return
+	if is_on_floor():
+		coyote_time = COYOTE_TIME
+	else:
+		coyote_time = maxf(0.0, coyote_time - delta)
 		velocity.y += GRAVITY * delta
-
-	var direction = Input.get_axis("ui_left", "ui_right")
-	velocity.x = direction * SPEED
-
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+	if Input.is_action_just_pressed("jump"):
+		jump_buffer_time = JUMP_BUFFER_TIME
+	if jump_buffer_time > 0.0 and coyote_time > 0.0:
 		velocity.y = JUMP_VELOCITY
-
+		jump_buffer_time = 0.0
+		coyote_time = 0.0
+		SfxManager.play_cue("dash")
+	var direction := Input.get_axis("move_left", "move_right")
+	if absf(direction) > 0.01:
+		facing = sign(direction)
+	var move_factor := 0.58 if attack_lock_time > 0.0 else 1.0
+	velocity.x = direction * SPEED * move_factor
+	if Input.is_action_just_pressed("attack"):
+		quick_attack()
+	if Input.is_action_just_pressed("technique"):
+		use_technique()
+	if Input.is_action_just_pressed("dash_focus"):
+		request_dash()
 	move_and_slide()
+	_update_animation(direction)
+
+func request_dash() -> void:
+	if controls_locked or dead:
+		return
+	if dash_cooldown > 0.0:
+		status_changed.emit("Рывок: перезарядка %.1f с" % dash_cooldown)
+		return
+	dash_time = DASH_DURATION
+	dash_cooldown = DASH_COOLDOWN
+	invulnerability_time = DASH_DURATION + 0.05
+	_damage_in_box(Vector2(82, 58), global_position + Vector2(facing * 48.0, 0.0), 1, "dash")
+	_play_visual(&"dash")
+	SfxManager.play_cue("dash")
+	status_changed.emit("Рывок разрушает слабые объекты")
+
+func quick_attack() -> void:
+	if controls_locked or dead or quick_cooldown > 0.0:
+		return
+	quick_cooldown = QUICK_ATTACK_COOLDOWN
+	attack_lock_time = 0.22
+	_play_visual(&"attack")
+	_damage_in_box(Vector2(96, 76), global_position + Vector2(facing * 54.0, -4.0), 1, "slash")
+	SfxManager.play_cue("attack")
+	status_changed.emit("Быстрый удар")
+
+func strong_attack() -> void:
+	if controls_locked or dead or strong_cooldown > 0.0:
+		return
+	strong_cooldown = STRONG_ATTACK_COOLDOWN
+	attack_lock_time = 0.48
+	_play_visual(&"heavy")
+	_damage_in_box(Vector2(128, 92), global_position + Vector2(facing * 70.0, -2.0), 2, "heavy")
+	SfxManager.play_cue("heavy")
+	status_changed.emit("Сильный удар разрушает усиленные объекты")
+
+func use_technique() -> void:
+	if controls_locked or dead or technique_cooldown > 0.0:
+		return
+	var technique := GameManager.selected_technique
+	var cost := 35.0 if technique == "blade" else 45.0
+	if not GameManager.spend_special_energy(cost):
+		status_changed.emit("Недостаточно энергии техники")
+		return
+	technique_cooldown = TECHNIQUE_COOLDOWN
+	var projectile := PROJECTILE_SCRIPT.new()
+	projectile.direction = facing
+	projectile.owner_player = self
+	if technique == "breaker":
+		projectile.damage = 3
+		projectile.damage_type = "explosive"
+		projectile.explosive = true
+		projectile.speed = 430.0
+		status_changed.emit("Разрушитель: взрывной талисман")
+	else:
+		projectile.damage = 2
+		projectile.damage_type = "energy"
+		projectile.speed = 680.0
+		status_changed.emit("Клинок: энергетический разрез")
+	get_parent().add_child(projectile)
+	projectile.global_position = global_position + Vector2(facing * 38.0, -16.0)
+	SfxManager.play_cue("attack")
+
+func set_focus_requested(active: bool) -> void:
+	focus_requested = active
+	if not active:
+		GameManager.focus_active = false
+
+func take_lethal_hit(hit_direction: float = 0.0) -> void:
+	if dead or invulnerability_time > 0.0:
+		return
+	if GameManager.consume_seal():
+		invulnerability_time = 1.1
+		velocity.x = hit_direction * 260.0
+		status_changed.emit("Защитная печать поглотила смертельный удар")
+		return
+	dead = true
+	controls_locked = true
+	GameManager.focus_active = false
+	_play_visual(&"death")
+	SfxManager.play_cue("hit")
+	status_changed.emit("Смертельный удар. Возврат к контрольной точке")
+	player_died.emit()
+	_restart_after_death.call_deferred()
+
+func _restart_after_death() -> void:
+	await get_tree().create_timer(0.75).timeout
+	GameManager.restart_from_checkpoint()
+
+func add_energy(amount: float) -> void:
+	GameManager.add_special_energy(amount)
+
+func show_status(message: String) -> void:
+	status_changed.emit(message)
+
+func get_dash_text() -> String:
+	return "РЫВОК/ФОКУС" if dash_cooldown <= 0.0 else "РЫВОК %.1f" % dash_cooldown
+
+func technique_name() -> String:
+	return "РАЗРУШИТЕЛЬ" if GameManager.selected_technique == "breaker" else "КЛИНОК"
+
+func _update_timers(delta: float) -> void:
+	dash_time = maxf(0.0, dash_time - delta)
+	dash_cooldown = maxf(0.0, dash_cooldown - delta)
+	quick_cooldown = maxf(0.0, quick_cooldown - delta)
+	strong_cooldown = maxf(0.0, strong_cooldown - delta)
+	technique_cooldown = maxf(0.0, technique_cooldown - delta)
+	invulnerability_time = maxf(0.0, invulnerability_time - delta)
+	attack_lock_time = maxf(0.0, attack_lock_time - delta)
+	jump_buffer_time = maxf(0.0, jump_buffer_time - delta)
+
+func _update_focus(delta: float) -> void:
+	if focus_requested and GameManager.special_energy > 0.0 and not dead:
+		GameManager.focus_active = true
+		GameManager.special_energy = maxf(0.0, GameManager.special_energy - FOCUS_DRAIN_PER_SECOND * delta)
+		if GameManager.special_energy <= 0.0:
+			focus_requested = false
+			GameManager.focus_active = false
+	else:
+		GameManager.focus_active = false
+
+func _damage_in_box(size: Vector2, center: Vector2, damage: int, damage_type: String) -> void:
+	var shape := RectangleShape2D.new()
+	shape.size = size
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.transform = Transform2D(0.0, center)
+	query.collision_mask = 1
+	query.exclude = [get_rid()]
+	var hits := get_world_2d().direct_space_state.intersect_shape(query, 32)
+	var damaged: Dictionary = {}
+	for hit in hits:
+		var collider := hit.get("collider") as Node
+		if collider == null or damaged.has(collider.get_instance_id()):
+			continue
+		damaged[collider.get_instance_id()] = true
+		if collider.has_method("take_damage"):
+			collider.take_damage(damage, self, damage_type)
+
+func _play_visual(animation_name: StringName) -> void:
+	if player_visual is AnimatedSprite2D:
+		(player_visual as AnimatedSprite2D).play(animation_name)
+	elif player_visual is Polygon2D:
+		var polygon := player_visual as Polygon2D
+		match animation_name:
+			&"dash":
+				polygon.scale = Vector2(1.35, 0.72)
+			&"attack":
+				polygon.scale = Vector2(1.18, 0.92)
+			&"heavy":
+				polygon.scale = Vector2(1.28, 1.08)
+			&"death":
+				polygon.rotation = PI * 0.5
+				polygon.modulate = Color(0.45, 0.45, 0.45, 1.0)
+			_:
+				polygon.scale = Vector2.ONE
+				polygon.rotation = 0.0
+				polygon.modulate = Color.WHITE
+
+func _current_visual_animation() -> StringName:
+	if player_visual is AnimatedSprite2D:
+		return (player_visual as AnimatedSprite2D).animation
+	return &""
+
+func _update_animation(direction: float) -> void:
+	if absf(direction) > 0.01:
+		player_visual.scale.x = absf(player_visual.scale.x) * (-1.0 if direction < 0.0 else 1.0)
+	if dead:
+		return
+	if dash_time > 0.0:
+		if _current_visual_animation() != &"dash":
+			_play_visual(&"dash")
+	elif attack_lock_time > 0.0:
+		return
+	elif not is_on_floor():
+		if _current_visual_animation() != &"jump":
+			_play_visual(&"jump")
+	elif absf(direction) > 0.01:
+		if _current_visual_animation() != &"run":
+			_play_visual(&"run")
+	else:
+		if _current_visual_animation() != &"idle":
+			_play_visual(&"idle")

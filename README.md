@@ -1,52 +1,40 @@
-# Ghost Katana: Duel Shift
+# Ghost Katana: Duel Shift — Version 8 / Level 1
 
-Minimal runnable Godot/Xogot prototype for the first gameplay loop.
+Godot 4 / Xogot project for iPad.
+
+## Main loop
+
+Fast destructible 2D level → artifact and technique choice → ordinary enemies → elite 3D duel → return to the same persistent 2D state → upper court → two-phase boss duel → level exit.
 
 ## Launch
 
-Open the repository folder in Godot/Xogot and run the project.
+Open the folder containing `project.godot` in Xogot and run the project.
 
 Main scene:
 
 `res://scenes/levels/Level2D.tscn`
 
-Autoload:
+## Mobile controls
 
-`GameManager → res://scripts/GameManager.gd`
+- Left / Right — movement.
+- Jump — jump with coyote time and jump buffer.
+- Attack tap — quick katana strike.
+- Attack hold — strong strike.
+- Dash/Focus tap — dash.
+- Dash/Focus hold — slow enemies while draining technique energy.
+- Technique — Blade energy wave or Breaker explosive talisman.
 
-## Implemented prototype cycle
+## Duel controls
 
-`Level2D → Enemy2D → DuelArena3D → Win/Lose → Level2D`
+- Quick — fast posture damage.
+- Heavy — stronger posture damage.
+- Guard — block; press close to impact for perfect parry.
+- Dodge — short invulnerability window.
 
-On victory, the defeated enemy disappears. On defeat, the player returns to the saved 2D position. The restart button clears the current run.
+## Combat rule
 
-## Controls
+A clean hit is lethal. The Zero Seal Fragment grants one protective seal that absorbs one lethal hit.
 
-Desktop:
+## Visual replacement
 
-- Left / Right arrows — movement
-- Space / Enter — jump
-
-Mobile/Xogot:
-
-- LEFT / RIGHT — movement
-- JUMP — jump
-- RESTART — reset the run
-- ATTACK / GUARD — duel actions
-
-## Current files
-
-- `project.godot`
-- `scenes/levels/Level2D.tscn`
-- `scenes/duel/DuelArena3D.tscn`
-- `scripts/GameManager.gd`
-- `scripts/Level2D.gd`
-- `scripts/Player2D.gd`
-- `scripts/Enemy2D.gd`
-- `scripts/DuelArena3D.gd`
-- `scripts/player_3d_marker.gd`
-- `docs/level_1_plan.md`
-
-## Prototype status
-
-This is a functional baseline made from temporary geometric visuals. It is intended for verifying the scene transition, movement, jump, duel loop, victory, defeat, enemy removal and mobile input before adding final art or expanding gameplay.
+All enemy, environment, artifact and 3D meshes are placeholders. Replace their visual child nodes without changing scripts, node names or collision nodes. See `docs/visual/asset_manifest.md`.

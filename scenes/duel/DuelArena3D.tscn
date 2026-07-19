@@ -1,109 +1,196 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/DuelArena3D.gd" id="1_duel"]
 [ext_resource type="Script" path="res://scripts/player_3d_marker.gd" id="2_marker"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_floor"]
-size = Vector3(12, 0.2, 7)
+[sub_resource type="BoxMesh" id="FloorMesh"]
+size = Vector3(14, 0.25, 8)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(12, 0.2, 7)
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(14, 0.25, 8)
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
-radius = 0.6
-height = 2.2
+[sub_resource type="CapsuleMesh" id="BodyMesh"]
+radius = 0.58
+height = 2.15
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_enemy"]
-radius = 0.6
-height = 2.2
+[sub_resource type="BoxMesh" id="SwordMesh"]
+size = Vector3(0.12, 1.8, 0.12)
 
-[sub_resource type="StandardMaterial3D" id="Material_enemy"]
-albedo_color = Color(0.9, 0.12, 0.12, 1)
+[sub_resource type="BoxMesh" id="DebrisMesh"]
+size = Vector3(1.7, 0.65, 1.1)
+
+[sub_resource type="BoxShape3D" id="DebrisShape"]
+size = Vector3(1.7, 0.65, 1.1)
+
+[sub_resource type="StandardMaterial3D" id="PlayerMaterial"]
+albedo_color = Color(0.03, 0.72, 1, 1)
+metallic = 0.25
+roughness = 0.28
+
+[sub_resource type="StandardMaterial3D" id="EnemyMaterial"]
+albedo_color = Color(0.92, 0.10, 0.14, 1)
+metallic = 0.22
+roughness = 0.34
+
+[sub_resource type="StandardMaterial3D" id="SwordMaterial"]
+albedo_color = Color(0.75, 0.95, 1, 1)
+emission_enabled = true
+emission = Color(0.15, 0.72, 1, 1)
+emission_energy_multiplier = 2.4
+
+[sub_resource type="StandardMaterial3D" id="EnemySwordMaterial"]
+albedo_color = Color(1, 0.65, 0.2, 1)
+emission_enabled = true
+emission = Color(1, 0.18, 0.06, 1)
+emission_energy_multiplier = 1.8
+
+[sub_resource type="StandardMaterial3D" id="DebrisMaterial"]
+albedo_color = Color(0.22, 0.24, 0.28, 1)
+roughness = 0.9
+
+[sub_resource type="Environment" id="Environment_duel"]
+background_mode = 1
+background_color = Color(0.025, 0.035, 0.06, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.22, 0.28, 0.42, 1)
+ambient_light_energy = 0.72
 
 [node name="DuelArena3D" type="Node3D"]
 script = ExtResource("1_duel")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_duel")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-rotation_degrees = Vector3(-55, -25, 0)
+rotation_degrees = Vector3(-55, -28, 0)
+light_energy = 1.35
 shadow_enabled = true
 
 [node name="Floor" type="StaticBody3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
-mesh = SubResource("BoxMesh_floor")
+[node name="Mesh" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("FloorMesh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
-shape = SubResource("BoxShape3D_floor")
+shape = SubResource("FloorShape")
 
-[node name="PlayerMarker" type="MeshInstance3D" parent="."]
-position = Vector3(-2.2, 1.1, 0)
-mesh = SubResource("CapsuleMesh_player")
+[node name="ArenaDebris" type="StaticBody3D" parent="."]
+position = Vector3(0.2, 0.42, 1.45)
+rotation_degrees = Vector3(0, 24, 8)
+
+[node name="Mesh" type="MeshInstance3D" parent="ArenaDebris"]
+mesh = SubResource("DebrisMesh")
+material_override = SubResource("DebrisMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ArenaDebris"]
+shape = SubResource("DebrisShape")
+
+[node name="PlayerRoot" type="Node3D" parent="."]
+position = Vector3(-2.35, 1.1, 0)
 script = ExtResource("2_marker")
 
-[node name="EnemyMarker" type="MeshInstance3D" parent="."]
-position = Vector3(2.2, 1.1, 0)
-mesh = SubResource("CapsuleMesh_enemy")
-material_override = SubResource("Material_enemy")
+[node name="Body" type="MeshInstance3D" parent="PlayerRoot"]
+mesh = SubResource("BodyMesh")
+material_override = SubResource("PlayerMaterial")
+
+[node name="Katana" type="MeshInstance3D" parent="PlayerRoot"]
+position = Vector3(0.65, 0.1, 0)
+rotation_degrees = Vector3(0, 0, -32)
+mesh = SubResource("SwordMesh")
+material_override = SubResource("SwordMaterial")
+
+[node name="EnemyRoot" type="Node3D" parent="."]
+position = Vector3(2.35, 1.1, 0)
+
+[node name="Body" type="MeshInstance3D" parent="EnemyRoot"]
+mesh = SubResource("BodyMesh")
+material_override = SubResource("EnemyMaterial")
+
+[node name="Katana" type="MeshInstance3D" parent="EnemyRoot"]
+position = Vector3(-0.65, 0.1, 0)
+rotation_degrees = Vector3(0, 0, 32)
+mesh = SubResource("SwordMesh")
+material_override = SubResource("EnemySwordMaterial")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-position = Vector3(0, 4.5, 9)
-rotation_degrees = Vector3(-18, 0, 0)
+position = Vector3(0, 4.6, 9.6)
+rotation_degrees = Vector3(-19, 0, 0)
 current = true
-
-[node name="StateTimer" type="Timer" parent="."]
-wait_time = 1.5
-autostart = false
+fov = 54.0
 
 [node name="UI" type="CanvasLayer" parent="."]
 
-[node name="Background" type="ColorRect" parent="UI"]
+[node name="TopPanel" type="ColorRect" parent="UI"]
+offset_left = 16.0
+offset_top = 14.0
+offset_right = 884.0
+offset_bottom = 190.0
+color = Color(0.02, 0.03, 0.055, 0.92)
+
+[node name="TitleLabel" type="Label" parent="UI/TopPanel"]
 offset_left = 18.0
-offset_top = 18.0
-offset_right = 360.0
-offset_bottom = 170.0
-color = Color(0.04, 0.05, 0.08, 0.82)
-mouse_filter = 2
+offset_top = 12.0
+offset_right = 850.0
+offset_bottom = 40.0
+text = "ДУЭЛЬ"
+horizontal_alignment = 1
 
-[node name="TitleLabel" type="Label" parent="UI"]
-offset_left = 34.0
-offset_top = 30.0
-offset_right = 330.0
-offset_bottom = 55.0
-text = "3D Duel"
+[node name="PlayerStateLabel" type="Label" parent="UI/TopPanel"]
+offset_left = 20.0
+offset_top = 48.0
+offset_right = 400.0
+offset_bottom = 74.0
+text = "ИГРОК"
 
-[node name="PlayerHPLabel" type="Label" parent="UI"]
-offset_left = 34.0
-offset_top = 64.0
-offset_right = 210.0
-offset_bottom = 90.0
-text = "Player HP: 3"
+[node name="EnemyStateLabel" type="Label" parent="UI/TopPanel"]
+offset_left = 452.0
+offset_top = 48.0
+offset_right = 840.0
+offset_bottom = 74.0
+text = "ВРАГ"
+horizontal_alignment = 2
 
-[node name="EnemyHPLabel" type="Label" parent="UI"]
-offset_left = 190.0
-offset_top = 64.0
-offset_right = 340.0
-offset_bottom = 90.0
-text = "Enemy HP: 3"
+[node name="TelegraphLabel" type="Label" parent="UI/TopPanel"]
+offset_left = 20.0
+offset_top = 80.0
+offset_right = 840.0
+offset_bottom = 108.0
+text = "ГОТОВЬТЕСЬ"
+horizontal_alignment = 1
 
-[node name="EnemyStateLabel" type="Label" parent="UI"]
-offset_left = 34.0
-offset_top = 98.0
-offset_right = 330.0
-offset_bottom = 124.0
-text = "Enemy State: Preparing Attack"
+[node name="StatusLabel" type="Label" parent="UI/TopPanel"]
+offset_left = 36.0
+offset_top = 116.0
+offset_right = 824.0
+offset_bottom = 164.0
+text = "Разбейте стойку врага."
+autowrap_mode = 2
+horizontal_alignment = 1
 
-[node name="AttackButton" type="Button" parent="UI"]
-offset_left = 34.0
-offset_top = 130.0
-offset_right = 180.0
-offset_bottom = 180.0
-text = "Attack"
+[node name="QuickButton" type="Button" parent="UI"]
+offset_left = 380.0
+offset_top = 400.0
+offset_right = 500.0
+offset_bottom = 480.0
+text = "БЫСТРЫЙ"
+
+[node name="HeavyButton" type="Button" parent="UI"]
+offset_left = 508.0
+offset_top = 400.0
+offset_right = 628.0
+offset_bottom = 480.0
+text = "СИЛЬНЫЙ"
 
 [node name="GuardButton" type="Button" parent="UI"]
-offset_left = 196.0
-offset_top = 130.0
-offset_right = 342.0
-offset_bottom = 180.0
-text = "Guard"
+offset_left = 636.0
+offset_top = 400.0
+offset_right = 756.0
+offset_bottom = 480.0
+text = "ЗАЩИТА"
+
+[node name="DodgeButton" type="Button" parent="UI"]
+offset_left = 764.0
+offset_top = 400.0
+offset_right = 884.0
+offset_bottom = 480.0
+text = "УКЛОН"

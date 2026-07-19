@@ -1,116 +1,514 @@
-[gd_scene format=3 uid="uid://bir80iut7aoba"]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://scripts/Level2D.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/Player2D.gd" id="2_player"]
-[ext_resource type="Script" path="res://scripts/Enemy2D.gd" id="3_enemy"]
+[ext_resource type="Script" path="res://scripts/Enemy2D.gd" id="3_duel_trigger"]
+[ext_resource type="Script" path="res://scripts/OrdinaryEnemy2D.gd" id="10_grunt"]
+[ext_resource type="Script" path="res://scripts/RangedEnemy2D.gd" id="11_ranged"]
+[ext_resource type="Script" path="res://scripts/DestructibleBlock.gd" id="12_block"]
+[ext_resource type="Script" path="res://scripts/Artifact2D.gd" id="13_artifact"]
+[ext_resource type="Script" path="res://scripts/ObjectiveGate2D.gd" id="14_gate"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(32, 64)
+[sub_resource type="RectangleShape2D" id="Shape_player"]
+size = Vector2(34, 68)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
-size = Vector2(900, 48)
+[sub_resource type="RectangleShape2D" id="Shape_ground"]
+size = Vector2(2600, 60)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_crate"]
-size = Vector2(56, 56)
+[sub_resource type="RectangleShape2D" id="Shape_platform"]
+size = Vector2(230, 28)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy"]
-size = Vector2(48, 64)
+[sub_resource type="RectangleShape2D" id="Shape_small_platform"]
+size = Vector2(140, 24)
+
+[sub_resource type="RectangleShape2D" id="Shape_wall"]
+size = Vector2(64, 120)
+
+[sub_resource type="RectangleShape2D" id="Shape_block"]
+size = Vector2(64, 64)
+
+[sub_resource type="RectangleShape2D" id="Shape_enemy"]
+size = Vector2(42, 58)
+
+[sub_resource type="CircleShape2D" id="Shape_artifact"]
+radius = 28.0
+
+[sub_resource type="RectangleShape2D" id="Shape_duel"]
+size = Vector2(58, 76)
+
+[sub_resource type="RectangleShape2D" id="Shape_gate"]
+size = Vector2(50, 160)
+
+[sub_resource type="RectangleShape2D" id="Shape_checkpoint"]
+size = Vector2(90, 110)
+
+[sub_resource type="RectangleShape2D" id="Shape_exit"]
+size = Vector2(90, 170)
+
+[sub_resource type="RectangleShape2D" id="Shape_boundary"]
+size = Vector2(40, 700)
 
 [node name="Level2D" type="Node2D"]
 script = ExtResource("1_level")
 
+[node name="Backdrop" type="Polygon2D" parent="."]
+color = Color(0.07, 0.09, 0.14, 1)
+polygon = PackedVector2Array(0, 0, 2600, 0, 2600, 500, 0, 500)
+
+[node name="MoonGlow" type="Polygon2D" parent="."]
+position = Vector2(1900, 90)
+color = Color(0.18, 0.25, 0.4, 0.55)
+polygon = PackedVector2Array(-120, -70, 120, -70, 170, 70, -170, 70)
+
 [node name="Player2D" type="CharacterBody2D" parent="."]
-position = Vector2(120, 360)
+position = Vector2(120, 400)
+collision_layer = 1
+collision_mask = 1
 script = ExtResource("2_player")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player2D"]
-shape = SubResource("RectangleShape2D_player")
+position = Vector2(0, 0)
+shape = SubResource("Shape_player")
 
 [node name="PlayerVisual" type="Polygon2D" parent="Player2D"]
-color = Color(0.2, 0.55, 1, 1)
-polygon = PackedVector2Array(-16, -32, 16, -32, 16, 32, -16, 32)
+position = Vector2(0, -2)
+color = Color(0.18, 0.72, 1, 1)
+polygon = PackedVector2Array(-17, -34, 17, -34, 17, 34, -17, 34)
 
-[node name="Ground" type="StaticBody2D" parent="."]
-position = Vector2(450, 440)
+[node name="Camera2D" type="Camera2D" parent="Player2D"]
+position = Vector2(150, -90)
+enabled = true
+zoom = Vector2(1.05, 1.05)
+limit_left = 0
+limit_top = 0
+limit_right = 2600
+limit_bottom = 500
+position_smoothing_enabled = true
+position_smoothing_speed = 7.0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
-shape = SubResource("RectangleShape2D_ground")
+[node name="World" type="Node2D" parent="."]
 
-[node name="GroundVisual" type="Polygon2D" parent="Ground"]
-color = Color(0.25, 0.7, 0.25, 1)
-polygon = PackedVector2Array(-450, -24, 450, -24, 450, 24, -450, 24)
+[node name="Ground" type="StaticBody2D" parent="World"]
+position = Vector2(1300, 470)
+collision_layer = 1
+collision_mask = 1
 
-[node name="Crate" type="StaticBody2D" parent="."]
-position = Vector2(330, 384)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Ground"]
+shape = SubResource("Shape_ground")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Crate"]
-shape = SubResource("RectangleShape2D_crate")
+[node name="Visual" type="Polygon2D" parent="World/Ground"]
+color = Color(0.17, 0.26, 0.22, 1)
+polygon = PackedVector2Array(-1300, -30, 1300, -30, 1300, 30, -1300, 30)
 
-[node name="CrateVisual" type="Polygon2D" parent="Crate"]
-color = Color(0.65, 0.38, 0.18, 1)
-polygon = PackedVector2Array(-28, -28, 28, -28, 28, 28, -28, 28)
+[node name="LeftBoundary" type="StaticBody2D" parent="World"]
+position = Vector2(-20, 250)
 
-[node name="Enemy2D" type="Area2D" parent="."]
-position = Vector2(560, 376)
-script = ExtResource("3_enemy")
-enemy_id = "enemy_01"
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/LeftBoundary"]
+shape = SubResource("Shape_boundary")
+
+[node name="RightBoundary" type="StaticBody2D" parent="World"]
+position = Vector2(2620, 250)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/RightBoundary"]
+shape = SubResource("Shape_boundary")
+
+[node name="WeakWall01" type="StaticBody2D" parent="World"]
+position = Vector2(430, 380)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("12_block")
+strength = "weak"
+object_id = "weak_wall_01"
+max_health = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/WeakWall01"]
+shape = SubResource("Shape_wall")
+
+[node name="Visual" type="Polygon2D" parent="World/WeakWall01"]
+polygon = PackedVector2Array(-32, -60, 32, -60, 32, 60, -32, 60)
+
+[node name="Grunt01" type="CharacterBody2D" parent="World"]
+position = Vector2(625, 410)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("10_grunt")
+enemy_id = "grunt_01"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Grunt01"]
+shape = SubResource("Shape_enemy")
+
+[node name="Visual" type="Polygon2D" parent="World/Grunt01"]
+color = Color(0.78, 0.2, 0.17, 1)
+polygon = PackedVector2Array(-21, -29, 21, -29, 21, 29, -21, 29)
+
+[node name="Platform01" type="StaticBody2D" parent="World"]
+position = Vector2(790, 350)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Platform01"]
+shape = SubResource("Shape_platform")
+
+[node name="Visual" type="Polygon2D" parent="World/Platform01"]
+color = Color(0.24, 0.29, 0.33, 1)
+polygon = PackedVector2Array(-115, -14, 115, -14, 115, 14, -115, 14)
+
+[node name="Ranged01" type="CharacterBody2D" parent="World"]
+position = Vector2(860, 310)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("11_ranged")
+enemy_id = "ranged_01"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Ranged01"]
+shape = SubResource("Shape_enemy")
+
+[node name="Visual" type="Polygon2D" parent="World/Ranged01"]
+color = Color(0.72, 0.28, 0.62, 1)
+polygon = PackedVector2Array(-21, -29, 21, -29, 21, 29, -21, 29)
+
+[node name="Platform02" type="StaticBody2D" parent="World"]
+position = Vector2(1015, 285)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Platform02"]
+shape = SubResource("Shape_small_platform")
+
+[node name="Visual" type="Polygon2D" parent="World/Platform02"]
+color = Color(0.25, 0.3, 0.34, 1)
+polygon = PackedVector2Array(-70, -12, 70, -12, 70, 12, -70, 12)
+
+[node name="SecretWall" type="StaticBody2D" parent="World"]
+position = Vector2(1090, 220)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("12_block")
+strength = "weak"
+object_id = "secret_wall_01"
+max_health = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/SecretWall"]
+shape = SubResource("Shape_block")
+
+[node name="Visual" type="Polygon2D" parent="World/SecretWall"]
+polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[node name="ArtifactPlatform" type="StaticBody2D" parent="World"]
+position = Vector2(1190, 245)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/ArtifactPlatform"]
+shape = SubResource("Shape_platform")
+
+[node name="Visual" type="Polygon2D" parent="World/ArtifactPlatform"]
+color = Color(0.27, 0.31, 0.36, 1)
+polygon = PackedVector2Array(-115, -14, 115, -14, 115, 14, -115, 14)
+
+[node name="Artifact" type="Area2D" parent="World"]
+position = Vector2(1190, 185)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("13_artifact")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Artifact"]
+shape = SubResource("Shape_artifact")
+
+[node name="Visual" type="Polygon2D" parent="World/Artifact"]
+color = Color(0.12, 0.95, 1, 1)
+polygon = PackedVector2Array(0, -28, 22, -8, 14, 24, -14, 24, -22, -8)
+
+[node name="ReinforcedSupport" type="StaticBody2D" parent="World"]
+position = Vector2(1320, 408)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("12_block")
+strength = "reinforced"
+object_id = "support_01"
+max_health = 3
+energy_reward = 20.0
+creates_duel_debris = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/ReinforcedSupport"]
+shape = SubResource("Shape_block")
+
+[node name="Visual" type="Polygon2D" parent="World/ReinforcedSupport"]
+polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[node name="EliteGuard" type="Area2D" parent="World"]
+position = Vector2(1470, 402)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("3_duel_trigger")
+enemy_id = "elite_01"
+duel_kind = "elite"
 enemy_level = 1
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy2D"]
-shape = SubResource("RectangleShape2D_enemy")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/EliteGuard"]
+shape = SubResource("Shape_duel")
 
-[node name="EnemyVisual" type="Polygon2D" parent="Enemy2D"]
-color = Color(0.95, 0.2, 0.2, 1)
-polygon = PackedVector2Array(-24, -32, 24, -32, 24, 32, -24, 32)
+[node name="Visual" type="Polygon2D" parent="World/EliteGuard"]
+color = Color(0.88, 0.08, 0.12, 1)
+polygon = PackedVector2Array(-29, -38, 29, -38, 29, 38, -29, 38)
 
-[node name="Exit" type="Area2D" parent="."]
-position = Vector2(790, 392)
+[node name="EliteGate" type="StaticBody2D" parent="World"]
+position = Vector2(1600, 390)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("14_gate")
+required_enemy_id = "elite_01"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Exit"]
-shape = SubResource("RectangleShape2D_enemy")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/EliteGate"]
+shape = SubResource("Shape_gate")
 
-[node name="ExitVisual" type="Polygon2D" parent="Exit"]
-color = Color(1, 0.85, 0.2, 1)
-polygon = PackedVector2Array(-24, -32, 24, -32, 24, 32, -24, 32)
+[node name="Visual" type="Polygon2D" parent="World/EliteGate"]
+color = Color(0.38, 0.12, 0.16, 1)
+polygon = PackedVector2Array(-25, -80, 25, -80, 25, 80, -25, 80)
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(450, 260)
-enabled = true
-zoom = Vector2(1.15, 1.15)
+[node name="CheckpointAfterElite" type="Area2D" parent="World"]
+position = Vector2(1690, 395)
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/CheckpointAfterElite"]
+shape = SubResource("Shape_checkpoint")
+
+[node name="UpperCourtPlatform" type="StaticBody2D" parent="World"]
+position = Vector2(1840, 350)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/UpperCourtPlatform"]
+shape = SubResource("Shape_platform")
+
+[node name="Visual" type="Polygon2D" parent="World/UpperCourtPlatform"]
+color = Color(0.22, 0.29, 0.34, 1)
+polygon = PackedVector2Array(-115, -14, 115, -14, 115, 14, -115, 14)
+
+[node name="Grunt02" type="CharacterBody2D" parent="World"]
+position = Vector2(1810, 310)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("10_grunt")
+enemy_id = "grunt_02"
+max_health = 3
+speed = 86.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Grunt02"]
+shape = SubResource("Shape_enemy")
+
+[node name="Visual" type="Polygon2D" parent="World/Grunt02"]
+color = Color(0.9, 0.31, 0.12, 1)
+polygon = PackedVector2Array(-21, -29, 21, -29, 21, 29, -21, 29)
+
+[node name="CourtPlatform02" type="StaticBody2D" parent="World"]
+position = Vector2(2010, 285)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/CourtPlatform02"]
+shape = SubResource("Shape_small_platform")
+
+[node name="Visual" type="Polygon2D" parent="World/CourtPlatform02"]
+color = Color(0.23, 0.29, 0.35, 1)
+polygon = PackedVector2Array(-70, -12, 70, -12, 70, 12, -70, 12)
+
+[node name="Ranged02" type="CharacterBody2D" parent="World"]
+position = Vector2(2020, 245)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("11_ranged")
+enemy_id = "ranged_02"
+fire_interval = 1.15
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Ranged02"]
+shape = SubResource("Shape_enemy")
+
+[node name="Visual" type="Polygon2D" parent="World/Ranged02"]
+color = Color(0.62, 0.25, 0.82, 1)
+polygon = PackedVector2Array(-21, -29, 21, -29, 21, 29, -21, 29)
+
+[node name="Boss" type="Area2D" parent="World"]
+position = Vector2(2225, 400)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("3_duel_trigger")
+enemy_id = "boss_01"
+duel_kind = "boss"
+enemy_level = 2
+required_enemy_id = "elite_01"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Boss"]
+shape = SubResource("Shape_duel")
+
+[node name="Visual" type="Polygon2D" parent="World/Boss"]
+color = Color(0.92, 0.48, 0.06, 1)
+polygon = PackedVector2Array(-29, -38, 29, -38, 29, 38, -29, 38)
+
+[node name="Exit" type="Area2D" parent="World"]
+position = Vector2(2490, 385)
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Exit"]
+shape = SubResource("Shape_exit")
+
+[node name="Visual" type="Polygon2D" parent="World/Exit"]
+color = Color(0.15, 0.85, 0.72, 0.75)
+polygon = PackedVector2Array(-45, -85, 45, -85, 45, 85, -45, 85)
 
 [node name="MobileUI" type="CanvasLayer" parent="."]
 
-[node name="Hint" type="Label" parent="MobileUI"]
-offset_left = 20.0
-offset_top = 18.0
-offset_right = 600.0
-offset_bottom = 48.0
-text = "Reach the red enemy. Win the 3D duel, then go to the yellow exit."
+[node name="TopPanel" type="ColorRect" parent="MobileUI"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 890.0
+offset_bottom = 102.0
+color = Color(0.025, 0.035, 0.055, 0.9)
 
-[node name="LeftButton" type="Button" parent="MobileUI"]
-offset_left = 28.0
-offset_top = 400.0
-offset_right = 118.0
-offset_bottom = 478.0
-text = "LEFT"
+[node name="ObjectiveLabel" type="Label" parent="MobileUI/TopPanel"]
+offset_left = 14.0
+offset_top = 8.0
+offset_right = 690.0
+offset_bottom = 32.0
+text = "ЦЕЛЬ"
 
-[node name="RightButton" type="Button" parent="MobileUI"]
-offset_left = 132.0
-offset_top = 400.0
-offset_right = 222.0
-offset_bottom = 478.0
-text = "RIGHT"
+[node name="StatsLabel" type="Label" parent="MobileUI/TopPanel"]
+offset_left = 14.0
+offset_top = 36.0
+offset_right = 590.0
+offset_bottom = 60.0
+text = "ПЕЧАТЬ 0   ТЕХНИКА КЛИНОК   ЭНЕРГИЯ 0%"
 
-[node name="JumpButton" type="Button" parent="MobileUI"]
-offset_left = 754.0
-offset_top = 400.0
-offset_right = 872.0
-offset_bottom = 478.0
-text = "JUMP"
+[node name="StatusLabel" type="Label" parent="MobileUI/TopPanel"]
+offset_left = 14.0
+offset_top = 62.0
+offset_right = 740.0
+offset_bottom = 88.0
+text = "Готово"
 
 [node name="RestartButton" type="Button" parent="MobileUI"]
-offset_left = 760.0
+offset_left = 790.0
+offset_top = 22.0
+offset_right = 878.0
+offset_bottom = 82.0
+text = "ЗАНОВО"
+
+[node name="LeftButton" type="Button" parent="MobileUI"]
+offset_left = 16.0
+offset_top = 410.0
+offset_right = 96.0
+offset_bottom = 484.0
+text = "ЛЕВО"
+
+[node name="RightButton" type="Button" parent="MobileUI"]
+offset_left = 104.0
+offset_top = 410.0
+offset_right = 184.0
+offset_bottom = 484.0
+text = "ПРАВО"
+
+[node name="JumpButton" type="Button" parent="MobileUI"]
+offset_left = 192.0
+offset_top = 410.0
+offset_right = 282.0
+offset_bottom = 484.0
+text = "ПРЫЖОК"
+
+[node name="DashFocusButton" type="Button" parent="MobileUI"]
+offset_left = 408.0
+offset_top = 410.0
+offset_right = 528.0
+offset_bottom = 484.0
+text = "РЫВОК/ФОКУС"
+
+[node name="AttackButton" type="Button" parent="MobileUI"]
+offset_left = 536.0
+offset_top = 410.0
+offset_right = 646.0
+offset_bottom = 484.0
+text = "АТАКА"
+
+[node name="TechniqueButton" type="Button" parent="MobileUI"]
+offset_left = 654.0
+offset_top = 410.0
+offset_right = 884.0
+offset_bottom = 484.0
+text = "ТЕХНИКА"
+
+[node name="ArtifactPanel" type="Panel" parent="MobileUI"]
+visible = false
+offset_left = 160.0
+offset_top = 120.0
+offset_right = 740.0
+offset_bottom = 390.0
+
+[node name="Title" type="Label" parent="MobileUI/ArtifactPanel"]
+offset_left = 24.0
 offset_top = 18.0
-offset_right = 872.0
-offset_bottom = 58.0
-text = "RESTART"
+offset_right = 550.0
+offset_bottom = 48.0
+text = "ОСКОЛОК НУЛЕВОЙ ПЕЧАТИ"
+horizontal_alignment = 1
+
+[node name="ArtifactText" type="Label" parent="MobileUI/ArtifactPanel"]
+offset_left = 30.0
+offset_top = 60.0
+offset_right = 550.0
+offset_bottom = 140.0
+text = "Выберите технику."
+autowrap_mode = 2
+horizontal_alignment = 1
+
+[node name="BladeButton" type="Button" parent="MobileUI/ArtifactPanel"]
+offset_left = 50.0
+offset_top = 165.0
+offset_right = 270.0
+offset_bottom = 240.0
+text = "КЛИНОК\nбыстрый разрез"
+
+[node name="BreakerButton" type="Button" parent="MobileUI/ArtifactPanel"]
+offset_left = 310.0
+offset_top = 165.0
+offset_right = 530.0
+offset_bottom = 240.0
+text = "РАЗРУШИТЕЛЬ\nвзрывной талисман"
+
+[node name="StoryPanel" type="Panel" parent="MobileUI"]
+visible = false
+offset_left = 110.0
+offset_top = 105.0
+offset_right = 790.0
+offset_bottom = 395.0
+
+[node name="StoryTitle" type="Label" parent="MobileUI/StoryPanel"]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 656.0
+offset_bottom = 52.0
+text = "СЮЖЕТ"
+horizontal_alignment = 1
+
+[node name="StoryText" type="Label" parent="MobileUI/StoryPanel"]
+offset_left = 38.0
+offset_top = 68.0
+offset_right = 642.0
+offset_bottom = 215.0
+text = "Текст"
+autowrap_mode = 2
+horizontal_alignment = 1
+
+[node name="ContinueButton" type="Button" parent="MobileUI/StoryPanel"]
+offset_left = 240.0
+offset_top = 225.0
+offset_right = 440.0
+offset_bottom = 272.0
+text = "ПРОДОЛЖИТЬ"
+
+[node name="EndPanel" type="Panel" parent="MobileUI"]
+visible = false
+offset_left = 120.0
+offset_top = 115.0
+offset_right = 780.0
+offset_bottom = 380.0
+
+[node name="EndText" type="Label" parent="MobileUI/EndPanel"]
+offset_left = 35.0
+offset_top = 30.0
+offset_right = 625.0
+offset_bottom = 235.0
+text = "УРОВЕНЬ ЗАВЕРШЁН"
+autowrap_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
