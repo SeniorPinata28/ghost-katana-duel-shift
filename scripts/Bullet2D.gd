@@ -19,7 +19,12 @@ func _ready() -> void:
 
 	var visual := Polygon2D.new()
 	visual.color = Color(1.0, 0.86, 0.2, 1.0)
-	visual.polygon = PackedVector2Array(-9, -3, 9, -3, 9, 3, -9, 3)
+	visual.polygon = PackedVector2Array([
+		Vector2(-9, -3),
+		Vector2(9, -3),
+		Vector2(9, 3),
+		Vector2(-9, 3)
+	])
 	add_child(visual)
 
 	body_entered.connect(_on_body_entered)
