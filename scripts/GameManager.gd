@@ -8,6 +8,7 @@ var current_enemy_level := 1
 var saved_player_2d_position := Vector2.ZERO
 var returning_from_duel := false
 var defeated_enemy_ids: Array[String] = []
+var scene_change_pending := false
 
 func start_duel(enemy_id: String, player_position: Vector2, enemy_level: int = 1) -> void:
 	current_enemy_id = enemy_id
@@ -34,6 +35,13 @@ func reset_run() -> void:
 	_change_scene(LEVEL_2D_SCENE)
 
 func _change_scene(path: String) -> void:
+	if scene_change_pending:
+		return
+	scene_change_pending = true
+	_change_scene_deferred.call_deferred(path)
+
+func _change_scene_deferred(path: String) -> void:
 	var error := get_tree().change_scene_to_file(path)
 	if error != OK:
+		scene_change_pending = false
 		push_error("Could not change scene to %s. Error code: %s" % [path, error])

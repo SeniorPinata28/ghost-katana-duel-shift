@@ -1,8 +1,17 @@
-[gd_scene format=3 uid="uid://bir80iut7aoba"]
+[gd_scene load_steps=21 format=3 uid="uid://bir80iut7aoba"]
 
 [ext_resource type="Script" path="res://scripts/Level2D.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/Player2D.gd" id="2_player"]
 [ext_resource type="Script" path="res://scripts/Enemy2D.gd" id="3_enemy"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_01.webp" id="4_run1"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_02.webp" id="5_run2"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_03.webp" id="6_run3"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_04.webp" id="7_run4"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_05.webp" id="8_run5"]
+[ext_resource type="Texture2D" path="res://assets/hero/run_06.webp" id="9_run6"]
+[ext_resource type="Script" path="res://scripts/OrdinaryEnemy2D.gd" id="10_ordinary"]
+[ext_resource type="Script" path="res://scripts/DestructibleBlock.gd" id="11_block"]
+[ext_resource type="Script" path="res://scripts/Captive2D.gd" id="12_captive"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(32, 64)
@@ -10,11 +19,43 @@ size = Vector2(32, 64)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(900, 48)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_crate"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_block"]
 size = Vector2(56, 56)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_elite"]
 size = Vector2(48, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ordinary"]
+size = Vector2(40, 56)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_captive"]
+size = Vector2(38, 60)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_player"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_run1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_run2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_run3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_run4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_run5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_run6")
+}],
+"loop": true,
+"name": &"run",
+"speed": 10.0
+}]
 
 [node name="Level2D" type="Node2D"]
 script = ExtResource("1_level")
@@ -26,9 +67,12 @@ script = ExtResource("2_player")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player2D"]
 shape = SubResource("RectangleShape2D_player")
 
-[node name="PlayerVisual" type="Polygon2D" parent="Player2D"]
-color = Color(0.2, 0.55, 1, 1)
-polygon = PackedVector2Array(-16, -32, 16, -32, 16, 32, -16, 32)
+[node name="PlayerVisual" type="AnimatedSprite2D" parent="Player2D"]
+texture_filter = 2
+position = Vector2(0, -22)
+scale = Vector2(0.32, 0.32)
+sprite_frames = SubResource("SpriteFrames_player")
+animation = &"run"
 
 [node name="Ground" type="StaticBody2D" parent="."]
 position = Vector2(450, 440)
@@ -37,37 +81,72 @@ position = Vector2(450, 440)
 shape = SubResource("RectangleShape2D_ground")
 
 [node name="GroundVisual" type="Polygon2D" parent="Ground"]
-color = Color(0.25, 0.7, 0.25, 1)
+color = Color(0.18, 0.34, 0.24, 1)
 polygon = PackedVector2Array(-450, -24, 450, -24, 450, 24, -450, 24)
 
-[node name="Crate" type="StaticBody2D" parent="."]
-position = Vector2(330, 384)
+[node name="BreakableBlockA" type="StaticBody2D" parent="."]
+position = Vector2(330, 388)
+script = ExtResource("11_block")
+max_health = 3
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Crate"]
-shape = SubResource("RectangleShape2D_crate")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BreakableBlockA"]
+shape = SubResource("RectangleShape2D_block")
 
-[node name="CrateVisual" type="Polygon2D" parent="Crate"]
-color = Color(0.65, 0.38, 0.18, 1)
+[node name="Visual" type="Polygon2D" parent="BreakableBlockA"]
 polygon = PackedVector2Array(-28, -28, 28, -28, 28, 28, -28, 28)
 
+[node name="OrdinaryEnemyA" type="CharacterBody2D" parent="."]
+position = Vector2(470, 388)
+script = ExtResource("10_ordinary")
+max_health = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OrdinaryEnemyA"]
+shape = SubResource("RectangleShape2D_ordinary")
+
+[node name="Visual" type="Polygon2D" parent="OrdinaryEnemyA"]
+color = Color(0.82, 0.22, 0.18, 1)
+polygon = PackedVector2Array(-20, -28, 20, -28, 20, 28, -20, 28)
+
+[node name="BreakableBlockB" type="StaticBody2D" parent="."]
+position = Vector2(590, 388)
+script = ExtResource("11_block")
+max_health = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BreakableBlockB"]
+shape = SubResource("RectangleShape2D_block")
+
+[node name="Visual" type="Polygon2D" parent="BreakableBlockB"]
+polygon = PackedVector2Array(-28, -28, 28, -28, 28, 28, -28, 28)
+
+[node name="Captive" type="Area2D" parent="."]
+position = Vector2(670, 386)
+script = ExtResource("12_captive")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Captive"]
+shape = SubResource("RectangleShape2D_captive")
+
+[node name="Visual" type="Polygon2D" parent="Captive"]
+color = Color(0.25, 0.92, 0.55, 1)
+polygon = PackedVector2Array(-19, -30, 19, -30, 19, 30, -19, 30)
+
 [node name="Enemy2D" type="Area2D" parent="."]
-position = Vector2(560, 376)
+position = Vector2(765, 384)
 script = ExtResource("3_enemy")
 enemy_id = "enemy_01"
 enemy_level = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy2D"]
-shape = SubResource("RectangleShape2D_enemy")
+shape = SubResource("RectangleShape2D_elite")
 
 [node name="EnemyVisual" type="Polygon2D" parent="Enemy2D"]
-color = Color(0.95, 0.2, 0.2, 1)
+color = Color(0.72, 0.08, 0.12, 1)
 polygon = PackedVector2Array(-24, -32, 24, -32, 24, 32, -24, 32)
 
 [node name="Exit" type="Area2D" parent="."]
-position = Vector2(790, 392)
+position = Vector2(855, 384)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Exit"]
-shape = SubResource("RectangleShape2D_enemy")
+shape = SubResource("RectangleShape2D_elite")
 
 [node name="ExitVisual" type="Polygon2D" parent="Exit"]
 color = Color(1, 0.85, 0.2, 1)
@@ -76,41 +155,85 @@ polygon = PackedVector2Array(-24, -32, 24, -32, 24, 32, -24, 32)
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(450, 260)
 enabled = true
-zoom = Vector2(1.15, 1.15)
+zoom = Vector2(1.08, 1.08)
 
 [node name="MobileUI" type="CanvasLayer" parent="."]
 
 [node name="Hint" type="Label" parent="MobileUI"]
 offset_left = 20.0
-offset_top = 18.0
-offset_right = 600.0
-offset_bottom = 48.0
-text = "Reach the red enemy. Win the 3D duel, then go to the yellow exit."
+offset_top = 14.0
+offset_right = 680.0
+offset_bottom = 38.0
+text = "2D: разрушьте блоки, победите обычного врага, спасите пленного."
 
-[node name="LeftButton" type="Button" parent="MobileUI"]
-offset_left = 28.0
-offset_top = 400.0
-offset_right = 118.0
-offset_bottom = 478.0
-text = "LEFT"
+[node name="StatsLabel" type="Label" parent="MobileUI"]
+offset_left = 20.0
+offset_top = 42.0
+offset_right = 330.0
+offset_bottom = 68.0
+text = "HP 3/3   ЯРОСТЬ 0%"
 
-[node name="RightButton" type="Button" parent="MobileUI"]
-offset_left = 132.0
-offset_top = 400.0
-offset_right = 222.0
-offset_bottom = 478.0
-text = "RIGHT"
-
-[node name="JumpButton" type="Button" parent="MobileUI"]
-offset_left = 754.0
-offset_top = 400.0
-offset_right = 872.0
-offset_bottom = 478.0
-text = "JUMP"
+[node name="StatusLabel" type="Label" parent="MobileUI"]
+offset_left = 340.0
+offset_top = 42.0
+offset_right = 760.0
+offset_bottom = 70.0
+text = "Готово"
+horizontal_alignment = 1
 
 [node name="RestartButton" type="Button" parent="MobileUI"]
-offset_left = 760.0
-offset_top = 18.0
-offset_right = 872.0
-offset_bottom = 58.0
-text = "RESTART"
+offset_left = 785.0
+offset_top = 14.0
+offset_right = 890.0
+offset_bottom = 62.0
+text = "ЗАНОВО"
+
+[node name="LeftButton" type="Button" parent="MobileUI"]
+offset_left = 18.0
+offset_top = 408.0
+offset_right = 98.0
+offset_bottom = 482.0
+text = "ВЛЕВО"
+
+[node name="RightButton" type="Button" parent="MobileUI"]
+offset_left = 106.0
+offset_top = 408.0
+offset_right = 186.0
+offset_bottom = 482.0
+text = "ВПРАВО"
+
+[node name="JumpButton" type="Button" parent="MobileUI"]
+offset_left = 194.0
+offset_top = 408.0
+offset_right = 284.0
+offset_bottom = 482.0
+text = "ПРЫЖОК"
+
+[node name="DashButton" type="Button" parent="MobileUI"]
+offset_left = 414.0
+offset_top = 408.0
+offset_right = 504.0
+offset_bottom = 482.0
+text = "РЫВОК"
+
+[node name="MeleeButton" type="Button" parent="MobileUI"]
+offset_left = 512.0
+offset_top = 408.0
+offset_right = 602.0
+offset_bottom = 482.0
+text = "УДАР"
+
+[node name="ShootButton" type="Button" parent="MobileUI"]
+offset_left = 610.0
+offset_top = 408.0
+offset_right = 700.0
+offset_bottom = 482.0
+text = "ОГОНЬ"
+
+[node name="BerserkButton" type="Button" parent="MobileUI"]
+offset_left = 708.0
+offset_top = 408.0
+offset_right = 890.0
+offset_bottom = 482.0
+text = "БЕРСЕРК"
+disabled = true

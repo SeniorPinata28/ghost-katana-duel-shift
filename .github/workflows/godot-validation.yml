@@ -1,0 +1,29 @@
+name: Godot Validation
+
+on:
+  push:
+    branches:
+      - agent/duel-defense
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Parse and launch project
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Import project and parse resources
+        run: godot --headless --editor --path . --quit
+
+      - name: Launch main scene
+        run: godot --headless --path . --quit-after 10
