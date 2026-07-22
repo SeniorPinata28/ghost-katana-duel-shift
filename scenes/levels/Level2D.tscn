@@ -9,8 +9,9 @@
 [ext_resource type="Script" path="res://scripts/Artifact2D.gd" id="13_artifact"]
 [ext_resource type="Script" path="res://scripts/ObjectiveGate2D.gd" id="14_gate"]
 
-[sub_resource type="RectangleShape2D" id="Shape_player"]
-size = Vector2(34, 68)
+[sub_resource type="CapsuleShape2D" id="Shape_player"]
+radius = 16.0
+height = 68.0
 
 [sub_resource type="RectangleShape2D" id="Shape_ground"]
 size = Vector2(2600, 60)
@@ -278,66 +279,24 @@ shape = SubResource("Shape_platform")
 color = Color(0.22, 0.29, 0.34, 1)
 polygon = PackedVector2Array(-115, -14, 115, -14, 115, 14, -115, 14)
 
-[node name="Grunt02" type="CharacterBody2D" parent="World"]
-position = Vector2(1810, 310)
-collision_layer = 1
-collision_mask = 1
-script = ExtResource("10_grunt")
-enemy_id = "grunt_02"
-max_health = 3
-speed = 86.0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Grunt02"]
-shape = SubResource("Shape_enemy")
-
-[node name="Visual" type="Polygon2D" parent="World/Grunt02"]
-color = Color(0.9, 0.31, 0.12, 1)
-polygon = PackedVector2Array(-21, -29, 21, -29, 21, 29, -21, 29)
-
-[node name="CourtPlatform02" type="StaticBody2D" parent="World"]
-position = Vector2(2010, 285)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="World/CourtPlatform02"]
-shape = SubResource("Shape_small_platform")
-
-[node name="Visual" type="Polygon2D" parent="World/CourtPlatform02"]
-color = Color(0.23, 0.29, 0.35, 1)
-polygon = PackedVector2Array(-70, -12, 70, -12, 70, 12, -70, 12)
-
-[node name="Ranged02" type="CharacterBody2D" parent="World"]
-position = Vector2(2020, 245)
-collision_layer = 1
-collision_mask = 1
-script = ExtResource("11_ranged")
-enemy_id = "ranged_02"
-fire_interval = 1.15
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Ranged02"]
-shape = SubResource("Shape_enemy")
-
-[node name="Visual" type="Polygon2D" parent="World/Ranged02"]
-color = Color(0.62, 0.25, 0.82, 1)
-polygon = PackedVector2Array(-21, -29, 21, -29, 21, 29, -21, 29)
-
-[node name="Boss" type="Area2D" parent="World"]
-position = Vector2(2225, 400)
+[node name="BossGuard" type="Area2D" parent="World"]
+position = Vector2(2050, 402)
 collision_layer = 1
 collision_mask = 1
 script = ExtResource("3_duel_trigger")
 enemy_id = "boss_01"
 duel_kind = "boss"
 enemy_level = 2
-required_enemy_id = "elite_01"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Boss"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/BossGuard"]
 shape = SubResource("Shape_duel")
 
-[node name="Visual" type="Polygon2D" parent="World/Boss"]
-color = Color(0.92, 0.48, 0.06, 1)
+[node name="Visual" type="Polygon2D" parent="World/BossGuard"]
+color = Color(0.55, 0.04, 0.08, 1)
 polygon = PackedVector2Array(-29, -38, 29, -38, 29, 38, -29, 38)
 
 [node name="Exit" type="Area2D" parent="World"]
-position = Vector2(2490, 385)
+position = Vector2(2460, 385)
 collision_layer = 0
 collision_mask = 1
 
@@ -345,170 +304,5 @@ collision_mask = 1
 shape = SubResource("Shape_exit")
 
 [node name="Visual" type="Polygon2D" parent="World/Exit"]
-color = Color(0.15, 0.85, 0.72, 0.75)
+color = Color(0.95, 0.75, 0.12, 1)
 polygon = PackedVector2Array(-45, -85, 45, -85, 45, 85, -45, 85)
-
-[node name="MobileUI" type="CanvasLayer" parent="."]
-
-[node name="TopPanel" type="ColorRect" parent="MobileUI"]
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 890.0
-offset_bottom = 102.0
-color = Color(0.025, 0.035, 0.055, 0.9)
-
-[node name="ObjectiveLabel" type="Label" parent="MobileUI/TopPanel"]
-offset_left = 14.0
-offset_top = 8.0
-offset_right = 690.0
-offset_bottom = 32.0
-text = "ЦЕЛЬ"
-
-[node name="StatsLabel" type="Label" parent="MobileUI/TopPanel"]
-offset_left = 14.0
-offset_top = 36.0
-offset_right = 590.0
-offset_bottom = 60.0
-text = "ПЕЧАТЬ 0   ТЕХНИКА КЛИНОК   ЭНЕРГИЯ 0%"
-
-[node name="StatusLabel" type="Label" parent="MobileUI/TopPanel"]
-offset_left = 14.0
-offset_top = 62.0
-offset_right = 740.0
-offset_bottom = 88.0
-text = "Готово"
-
-[node name="RestartButton" type="Button" parent="MobileUI"]
-offset_left = 790.0
-offset_top = 22.0
-offset_right = 878.0
-offset_bottom = 82.0
-text = "ЗАНОВО"
-
-[node name="LeftButton" type="Button" parent="MobileUI"]
-offset_left = 16.0
-offset_top = 410.0
-offset_right = 96.0
-offset_bottom = 484.0
-text = "ЛЕВО"
-
-[node name="RightButton" type="Button" parent="MobileUI"]
-offset_left = 104.0
-offset_top = 410.0
-offset_right = 184.0
-offset_bottom = 484.0
-text = "ПРАВО"
-
-[node name="JumpButton" type="Button" parent="MobileUI"]
-offset_left = 192.0
-offset_top = 410.0
-offset_right = 282.0
-offset_bottom = 484.0
-text = "ПРЫЖОК"
-
-[node name="DashFocusButton" type="Button" parent="MobileUI"]
-offset_left = 408.0
-offset_top = 410.0
-offset_right = 528.0
-offset_bottom = 484.0
-text = "РЫВОК/ФОКУС"
-
-[node name="AttackButton" type="Button" parent="MobileUI"]
-offset_left = 536.0
-offset_top = 410.0
-offset_right = 646.0
-offset_bottom = 484.0
-text = "АТАКА"
-
-[node name="TechniqueButton" type="Button" parent="MobileUI"]
-offset_left = 654.0
-offset_top = 410.0
-offset_right = 884.0
-offset_bottom = 484.0
-text = "ТЕХНИКА"
-
-[node name="ArtifactPanel" type="Panel" parent="MobileUI"]
-visible = false
-offset_left = 160.0
-offset_top = 120.0
-offset_right = 740.0
-offset_bottom = 390.0
-
-[node name="Title" type="Label" parent="MobileUI/ArtifactPanel"]
-offset_left = 24.0
-offset_top = 18.0
-offset_right = 550.0
-offset_bottom = 48.0
-text = "ОСКОЛОК НУЛЕВОЙ ПЕЧАТИ"
-horizontal_alignment = 1
-
-[node name="ArtifactText" type="Label" parent="MobileUI/ArtifactPanel"]
-offset_left = 30.0
-offset_top = 60.0
-offset_right = 550.0
-offset_bottom = 140.0
-text = "Выберите технику."
-autowrap_mode = 2
-horizontal_alignment = 1
-
-[node name="BladeButton" type="Button" parent="MobileUI/ArtifactPanel"]
-offset_left = 50.0
-offset_top = 165.0
-offset_right = 270.0
-offset_bottom = 240.0
-text = "КЛИНОК\nбыстрый разрез"
-
-[node name="BreakerButton" type="Button" parent="MobileUI/ArtifactPanel"]
-offset_left = 310.0
-offset_top = 165.0
-offset_right = 530.0
-offset_bottom = 240.0
-text = "РАЗРУШИТЕЛЬ\nвзрывной талисман"
-
-[node name="StoryPanel" type="Panel" parent="MobileUI"]
-visible = false
-offset_left = 110.0
-offset_top = 105.0
-offset_right = 790.0
-offset_bottom = 395.0
-
-[node name="StoryTitle" type="Label" parent="MobileUI/StoryPanel"]
-offset_left = 24.0
-offset_top = 20.0
-offset_right = 656.0
-offset_bottom = 52.0
-text = "СЮЖЕТ"
-horizontal_alignment = 1
-
-[node name="StoryText" type="Label" parent="MobileUI/StoryPanel"]
-offset_left = 38.0
-offset_top = 68.0
-offset_right = 642.0
-offset_bottom = 215.0
-text = "Текст"
-autowrap_mode = 2
-horizontal_alignment = 1
-
-[node name="ContinueButton" type="Button" parent="MobileUI/StoryPanel"]
-offset_left = 240.0
-offset_top = 225.0
-offset_right = 440.0
-offset_bottom = 272.0
-text = "ПРОДОЛЖИТЬ"
-
-[node name="EndPanel" type="Panel" parent="MobileUI"]
-visible = false
-offset_left = 120.0
-offset_top = 115.0
-offset_right = 780.0
-offset_bottom = 380.0
-
-[node name="EndText" type="Label" parent="MobileUI/EndPanel"]
-offset_left = 35.0
-offset_top = 30.0
-offset_right = 625.0
-offset_bottom = 235.0
-text = "УРОВЕНЬ ЗАВЕРШЁН"
-autowrap_mode = 2
-horizontal_alignment = 1
-vertical_alignment = 1
