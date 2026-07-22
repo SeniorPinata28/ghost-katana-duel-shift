@@ -6,8 +6,14 @@ signal player_died
 const PROJECTILE_SCRIPT := preload("res://scripts/PlayerProjectile2D.gd")
 
 const SPEED := 225.0
+const GROUND_ACCELERATION := 1900.0
+const AIR_ACCELERATION := 1250.0
+const GROUND_FRICTION := 2300.0
+const AIR_FRICTION := 520.0
 const JUMP_VELOCITY := -430.0
-const GRAVITY := 980.0
+const GRAVITY_UP := 980.0
+const GRAVITY_DOWN := 1420.0
+const JUMP_CUT_MULTIPLIER := 0.48
 const COYOTE_TIME := 0.12
 const JUMP_BUFFER_TIME := 0.12
 const DASH_SPEED := 610.0
@@ -17,6 +23,7 @@ const QUICK_ATTACK_COOLDOWN := 0.24
 const STRONG_ATTACK_COOLDOWN := 0.62
 const TECHNIQUE_COOLDOWN := 0.32
 const FOCUS_DRAIN_PER_SECOND := 24.0
+const WALL_RELEASE_SPEED := 42.0
 
 var facing := 1.0
 var controls_locked := false
@@ -31,16 +38,22 @@ var attack_lock_time := 0.0
 var coyote_time := 0.0
 var jump_buffer_time := 0.0
 var focus_requested := false
-
 var player_visual: Node2D
 
 func _ready() -> void:
 	add_to_group("player_2d")
+	floor_stop_on_slope = false
+	floor_constant_speed = true
+	floor_snap_length = 6.0
+	safe_margin = 0.04
 	_setup_player_visual()
 	_play_visual(&"idle")
 
 func _setup_player_visual() -> void:
-	var placeholder := get_node_or_null("PlayerVisual") as Node2D
+	var existing := get_node_or_null("PlayerVisual") as Node2D
+	if existing is AnimatedSprite2D:
+		player_visual = existing
+		return
 	var animated := AnimatedSprite2D.new()
 	animated.name = "PlayerVisualAnimated"
 	animated.centered = true
@@ -50,8 +63,8 @@ func _setup_player_visual() -> void:
 	animated.sprite_frames = _build_player_frames()
 	add_child(animated)
 	player_visual = animated
-	if placeholder != null:
-		placeholder.visible = false
+	if existing != null:
+		existing.visible = false
 
 func _build_player_frames() -> SpriteFrames:
 	var frames := SpriteFrames.new()
@@ -97,42 +110,86 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		return
 	if controls_locked:
-		velocity.x = move_toward(velocity.x, 0.0, 1200.0 * delta)
-		if not is_on_floor():
-			velocity.y += GRAVITY * delta
+		velocity.x = move_toward(velocity.x, 0.0, GROUND_FRICTION * delta)
+		_apply_gravity(delta)
 		move_and_slide()
+		_release_wall_pressure()
 		_update_animation(0.0)
 		return
 	if dash_time > 0.0:
 		velocity = Vector2(facing * DASH_SPEED, 0.0)
 		move_and_slide()
+		_release_wall_pressure()
 		_update_animation(facing)
 		return
-	if is_on_floor():
-		coyote_time = COYOTE_TIME
-	else:
-		coyote_time = maxf(0.0, coyote_time - delta)
-		velocity.y += GRAVITY * delta
-	if Input.is_action_just_pressed("jump"):
-		jump_buffer_time = JUMP_BUFFER_TIME
-	if jump_buffer_time > 0.0 and coyote_time > 0.0:
-		velocity.y = JUMP_VELOCITY
-		jump_buffer_time = 0.0
-		coyote_time = 0.0
-		SfxManager.play_cue("dash")
+
+	_update_ground_state(delta)
+	_handle_jump_input()
+	_apply_gravity(delta)
+
 	var direction := Input.get_axis("move_left", "move_right")
 	if absf(direction) > 0.01:
 		facing = sign(direction)
-	var move_factor := 0.58 if attack_lock_time > 0.0 else 1.0
-	velocity.x = direction * SPEED * move_factor
+	_apply_horizontal_movement(direction, delta)
+
 	if Input.is_action_just_pressed("attack"):
 		quick_attack()
 	if Input.is_action_just_pressed("technique"):
 		use_technique()
 	if Input.is_action_just_pressed("dash_focus"):
 		request_dash()
+
 	move_and_slide()
+	_release_wall_pressure()
 	_update_animation(direction)
+
+func _update_ground_state(delta: float) -> void:
+	if is_on_floor():
+		coyote_time = COYOTE_TIME
+	else:
+		coyote_time = maxf(0.0, coyote_time - delta)
+
+func _handle_jump_input() -> void:
+	if Input.is_action_just_pressed("jump"):
+		jump_buffer_time = JUMP_BUFFER_TIME
+	if jump_buffer_time > 0.0 and coyote_time > 0.0:
+		velocity.y = JUMP_VELOCITY
+		jump_buffer_time = 0.0
+		coyote_time = 0.0
+		floor_snap_length = 0.0
+		SfxManager.play_cue("dash")
+	if Input.is_action_just_released("jump") and velocity.y < 0.0:
+		velocity.y *= JUMP_CUT_MULTIPLIER
+
+func _apply_gravity(delta: float) -> void:
+	if is_on_floor() and velocity.y >= 0.0:
+		velocity.y = 0.0
+		floor_snap_length = 6.0
+		return
+	var gravity := GRAVITY_UP if velocity.y < 0.0 else GRAVITY_DOWN
+	velocity.y += gravity * delta
+
+func _apply_horizontal_movement(direction: float, delta: float) -> void:
+	var move_factor := 0.58 if attack_lock_time > 0.0 else 1.0
+	var target_speed := direction * SPEED * move_factor
+	if absf(direction) > 0.01:
+		var acceleration := GROUND_ACCELERATION if is_on_floor() else AIR_ACCELERATION
+		velocity.x = move_toward(velocity.x, target_speed, acceleration * delta)
+	else:
+		var friction := GROUND_FRICTION if is_on_floor() else AIR_FRICTION
+		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+
+func _release_wall_pressure() -> void:
+	if not is_on_wall():
+		return
+	var wall_normal := get_wall_normal()
+	if wall_normal == Vector2.ZERO:
+		return
+	if velocity.dot(wall_normal) < 0.0:
+		velocity -= wall_normal * velocity.dot(wall_normal)
+	velocity.x += wall_normal.x * WALL_RELEASE_SPEED
+	if not is_on_floor() and velocity.y > 0.0:
+		velocity.y = maxf(velocity.y, 40.0)
 
 func request_dash() -> void:
 	if controls_locked or dead:
