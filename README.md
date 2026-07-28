@@ -2,39 +2,65 @@
 
 Godot 4 / Xogot project for iPad.
 
-## Main loop
+## Canonical game structure
 
-Fast destructible 2D level → artifact and technique choice → ordinary enemies → elite 3D duel → return to the same persistent 2D state → upper court → two-phase boss duel → level exit.
+Story-driven 2D exploration and combat → artifact and technique choice → ordinary melee and ranged enemies → elite Duel Shift → return to the same persistent 2D state → upper court → two-phase boss duel → level exit.
 
-## Launch
+## 2D systems
 
-Open the folder containing `project.godot` in Xogot and run the project.
+The 2D mode is the main story and exploration mode. It contains:
 
-Main scene:
+- movement, jumping and dash;
+- katana quick and strong attacks;
+- ordinary firearm combat with magazine and reload;
+- Blade and Breaker techniques as a separate additional system;
+- Focus time slowdown;
+- ordinary melee and ranged enemies;
+- destructible weak and reinforced structures;
+- persistent destruction, enemy defeat and checkpoint state;
+- the Zero Seal Fragment artifact and protective seal.
+
+The firearm does not replace the katana. Techniques do not replace the firearm. All three systems coexist in 2D.
+
+## Duel Shift rules
+
+Duel Shift is a dedicated katana-only mastery test.
+
+Available actions:
+
+- quick attack;
+- heavy attack;
+- guard;
+- perfect parry;
+- dodge.
+
+Not available in Duel Shift:
+
+- firearm;
+- Focus;
+- Blade or Breaker techniques;
+- destructible-level combat systems.
+
+A clean hit is lethal. The Zero Seal Fragment grants one protective seal that absorbs one lethal hit. Boss duels use multiple clean-hit phases.
+
+## Controls
+
+Desktop:
+
+- A / D or arrows — movement;
+- Space — jump;
+- J — katana attack;
+- I — firearm;
+- K — dash / Focus;
+- L — technique;
+- R — restart.
+
+Mobile controls must expose separate Katana, Firearm, Technique and Dash/Focus actions.
+
+## Main scene
 
 `res://scenes/levels/Level2D.tscn`
 
-## Mobile controls
-
-- Left / Right — movement.
-- Jump — jump with coyote time and jump buffer.
-- Attack tap — quick katana strike.
-- Attack hold — strong strike.
-- Dash/Focus tap — dash.
-- Dash/Focus hold — slow enemies while draining technique energy.
-- Technique — Blade energy wave or Breaker explosive talisman.
-
-## Duel controls
-
-- Quick — fast posture damage.
-- Heavy — stronger posture damage.
-- Guard — block; press close to impact for perfect parry.
-- Dodge — short invulnerability window.
-
-## Combat rule
-
-A clean hit is lethal. The Zero Seal Fragment grants one protective seal that absorbs one lethal hit.
-
 ## Visual replacement
 
-All enemy, environment, artifact and 3D meshes are placeholders. Replace their visual child nodes without changing scripts, node names or collision nodes. See `docs/visual/asset_manifest.md`.
+Enemy, environment, artifact and 3D meshes remain placeholders. Replace visual child nodes without changing scripts, root node names or collision nodes. See `docs/visual/asset_manifest.md`.
