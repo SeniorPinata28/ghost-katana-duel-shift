@@ -1,52 +1,66 @@
-# Ghost Katana: Duel Shift
+# Ghost Katana: Duel Shift — Version 8 / Level 1
 
-Minimal runnable Godot/Xogot prototype for the first gameplay loop.
+Godot 4 / Xogot project for iPad.
 
-## Launch
+## Canonical game structure
 
-Open the repository folder in Godot/Xogot and run the project.
+Story-driven 2D exploration and combat → artifact and technique choice → ordinary melee and ranged enemies → elite Duel Shift → return to the same persistent 2D state → upper court → two-phase boss duel → level exit.
 
-Main scene:
+## 2D systems
 
-`res://scenes/levels/Level2D.tscn`
+The 2D mode is the main story and exploration mode. It contains:
 
-Autoload:
+- movement, jumping and dash;
+- katana quick and strong attacks;
+- ordinary firearm combat with magazine and reload;
+- Blade and Breaker techniques as a separate additional system;
+- Focus time slowdown;
+- ordinary melee and ranged enemies;
+- destructible weak and reinforced structures;
+- persistent destruction, enemy defeat and checkpoint state;
+- the Zero Seal Fragment artifact and protective seal.
 
-`GameManager → res://scripts/GameManager.gd`
+The firearm does not replace the katana. Techniques do not replace the firearm. All three systems coexist in 2D.
 
-## Implemented prototype cycle
+## Duel Shift rules
 
-`Level2D → Enemy2D → DuelArena3D → Win/Lose → Level2D`
+Duel Shift is a dedicated katana-only mastery test.
 
-On victory, the defeated enemy disappears. On defeat, the player returns to the saved 2D position. The restart button clears the current run.
+Available actions:
+
+- quick attack;
+- heavy attack;
+- guard;
+- perfect parry;
+- dodge.
+
+Not available in Duel Shift:
+
+- firearm;
+- Focus;
+- Blade or Breaker techniques;
+- destructible-level combat systems.
+
+A clean hit is lethal. The Zero Seal Fragment grants one protective seal that absorbs one lethal hit. Boss duels use multiple clean-hit phases.
 
 ## Controls
 
 Desktop:
 
-- Left / Right arrows — movement
-- Space / Enter — jump
+- A / D or arrows — movement;
+- Space — jump;
+- J — katana attack;
+- I — firearm;
+- K — dash / Focus;
+- L — technique;
+- R — restart.
 
-Mobile/Xogot:
+Mobile controls must expose separate Katana, Firearm, Technique and Dash/Focus actions.
 
-- LEFT / RIGHT — movement
-- JUMP — jump
-- RESTART — reset the run
-- ATTACK / GUARD — duel actions
+## Main scene
 
-## Current files
+`res://scenes/levels/Level2D.tscn`
 
-- `project.godot`
-- `scenes/levels/Level2D.tscn`
-- `scenes/duel/DuelArena3D.tscn`
-- `scripts/GameManager.gd`
-- `scripts/Level2D.gd`
-- `scripts/Player2D.gd`
-- `scripts/Enemy2D.gd`
-- `scripts/DuelArena3D.gd`
-- `scripts/player_3d_marker.gd`
-- `docs/level_1_plan.md`
+## Visual replacement
 
-## Prototype status
-
-This is a functional baseline made from temporary geometric visuals. It is intended for verifying the scene transition, movement, jump, duel loop, victory, defeat, enemy removal and mobile input before adding final art or expanding gameplay.
+Enemy, environment, artifact and 3D meshes remain placeholders. Replace visual child nodes without changing scripts, root node names or collision nodes. See `docs/visual/asset_manifest.md`.
